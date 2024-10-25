@@ -47,16 +47,22 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
         };
     }, [searchKeyword]);
 
+    const clearSearchKeyword = () => {
+        console.log('clear button');
+        setSearchKeyword('');
+    }
+
     return (
         <View style={styles.container}>
             <SearchBarIOS
                 accessibilityLabel="Search assets"
                 searchIcon={<FontAwesome name="search" size={24} color={'gray'} />}
-                clearIcon={<FontAwesome name='close' size={24} color={'gray'} />}
+                clearIcon={<></>}
                 containerStyle={styles.searchBarContainer}
                 inputContainerStyle={styles.inputContainer}
                 placeholder="Search"
                 onChangeText={setSearchKeyword}
+                cancelButtonTitle='Clear'
                 value={searchKeyword}
             />
             {loading && <ActivityIndicator size="small" color="gray" style={styles.loadingIndicator} />}
