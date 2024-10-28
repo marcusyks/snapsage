@@ -5,11 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { CustomNavBar } from '@/components/CustomNavBar';
 import { Image } from 'expo-image';
-import { Asset } from 'expo-media-library';
-import * as MediaLibrary from 'expo-media-library';
+import { GalleryDisplay } from '@/components/GalleryDisplay';
+import { GetSimilarAssets } from '@/hooks/getSimilarAsset';
 
-
-// TODO: perform similarity search
 
 const spaceFromSides = 10;
 const { width } = Dimensions.get('window'); // Get screen width for layout
@@ -17,6 +15,8 @@ const { width } = Dimensions.get('window'); // Get screen width for layout
 export default function ImageModal() {
   const { asset } = useLocalSearchParams<{ asset : string }>(); // Get route parameters
   const parsedAsset = JSON.parse(asset as string); // Convert assets from string back to object
+  const {similarAssets, loading, error} = GetSimilarAssets(parsedAsset.uri);
+
 
   const getRatio = (w: number, h : number)=> {
     const ratio = w/h;
@@ -43,6 +43,17 @@ export default function ImageModal() {
           }}
         />
       </View>
+      {loading && <Text style={styles.loadingText}>Loading...</Text>}
+      {!loading && error && <Text style={styles.loadingText}>Error loading similar images...</Text>}
+      {!loading && !error && similarAssets.length === 0 ? (
+        <Text style={styles.loadingText}>No similar images found...</Text>
+      ) : (
+        !loading && !error && similarAssets.length > 0 && (
+          <View style={styles.similarImageContainer}>
+            <GalleryDisplay assets={similarAssets} />
+          </View>
+        )
+      )}
     </SafeAreaView>
   );
 }
@@ -58,5 +69,13 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       marginTop: 20,
     },
+    similarImageContainer: {
+      marginTop: 20,
+    },
+    loadingText: {
+      flex: 1,
+      marginTop: 30,
+      textAlign: 'center'
+    }
   });
 

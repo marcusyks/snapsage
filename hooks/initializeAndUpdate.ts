@@ -4,13 +4,12 @@ import { Asset } from 'expo-media-library';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
+import { FeatureExtraction } from '@/functions/featureExtraction';
 
-// extraction process
-
-interface Row {
+export interface Row {
+  embeddings: string;
   filepath: string;
   keywords: string;
-  embedding: string;
 }
 
 const ASSETS_CACHE_KEY = process.env.EXPO_PUBLIC_ASSETS_CACHE_KEY as string;
@@ -20,148 +19,129 @@ export const initializeAndUpdate = () => {
   const [progress, setProgress] = useState<number>(0);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isComplete, setIsComplete] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [permissionResponse, requestPermission] = MediaLibrary.usePermissions();
 
   useEffect(() => {
     const fetchAssets = async () => {
+      setIsLoading(true); // Start loading
+
       if (!permissionResponse || permissionResponse.status !== 'granted') {
         await requestPermission();
       } else if (!permissionResponse.canAskAgain) {
         Linking.openSettings();
       }
 
-      // Check if permission is allowed
       if (permissionResponse?.status === 'granted') {
-        // Get database and create one if doesn't exist
         const db = await SQLite.openDatabaseAsync(DB_KEY);
-        try{
-          await db.execAsync(`
-          PRAGMA journal_mode = WAL;
-          CREATE TABLE IF NOT EXISTS images (filepath TEXT PRIMARY KEY NOT NULL, keywords TEXT, embeddings TEXT);
-          `);
-        } catch {
-          console.log("Failed to load database!");
-        }
+        await initializeDatabase(db);
+        await fetchAndProcessAssets(db);
 
-        const pageSize = 50;
-        let fetchedAssets: Asset[] = [];
-        let totalAssets = 0;
-        let page = 0;
-
-        // First fetch to determine total asset count
-        const firstFetch = await MediaLibrary.getAssetsAsync({
-          mediaType: 'photo',
-          sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-          first: pageSize,
-        });
-
-        totalAssets = firstFetch.totalCount;
-        fetchedAssets = firstFetch.assets as Asset[];
-        setAssets(fetchedAssets);
-
-        // Process images (e.g., feature extraction)
-        await processImages(fetchedAssets,db);
-
-        setProgress((fetchedAssets.length / totalAssets) * 100);
-
-        // Fetch remaining assets in batches
-        while (fetchedAssets.length < totalAssets) {
-          page += 1;
-          const nextFetch = await MediaLibrary.getAssetsAsync({
-            mediaType: 'photo',
-            sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-            first: pageSize,
-            after: fetchedAssets[fetchedAssets.length - 1].id,
-          });
-
-          fetchedAssets = [...fetchedAssets, ...nextFetch.assets];
-          setAssets(fetchedAssets);
-
-          // Continue processing the images
-          await processImages(nextFetch.assets, db);
-
-          setProgress((fetchedAssets.length / totalAssets) * 100);
-        }
-
-        // After processing is done, update the database
-        await updateDatabase(fetchedAssets, db);
-        // Cache the fetched assets in AsyncStorage
-        await AsyncStorage.setItem(ASSETS_CACHE_KEY, JSON.stringify(fetchedAssets));
-        setIsComplete(true);
+        setProgress(100);
+        setIsComplete(true); // Mark the process as complete
       }
+
+      setIsLoading(false); // End loading
     };
 
     fetchAssets();
   }, [permissionResponse]);
 
-    // Process images and extract keywords and embeddings (dummy function)
-    const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
-      for (const asset of assets) {
-        const fileUri = asset.uri;
-        const keywords = await extractKeywords(fileUri); // Replace with actual keyword extraction logic
-        const embeddings = await extractEmbeddings(fileUri); // Replace with actual embedding logic
+  const initializeDatabase = async (db: SQLite.SQLiteDatabase) => {
+    try {
+      await db.execAsync(`
+        PRAGMA journal_mode = WAL;
+        CREATE TABLE IF NOT EXISTS images (filepath TEXT PRIMARY KEY NOT NULL, keywords TEXT, embeddings TEXT);
+      `);
+    } catch {
+      console.log("Failed to load database!");
+    }
+  };
+
+  const fetchAndProcessAssets = async (db: SQLite.SQLiteDatabase) => {
+    let fetchedAssets: Asset[] = [];
+
+    const {totalCount} = await MediaLibrary.getAssetsAsync({
+      mediaType: 'photo',
+    });
+
+    // Dynamic paging
+    const maxPageSize = 50;
+    const calculatedPageSize = Math.max(Math.ceil(totalCount * 0.1), 1); // Use 10% of total assets or at least 1
+    const pageSize = Math.min(calculatedPageSize, maxPageSize); // Ensure it doesn't exceed maxPageSize
+
+    const firstFetch = await MediaLibrary.getAssetsAsync({
+        mediaType: 'photo',
+        sortBy: [[MediaLibrary.SortBy.creationTime, false]],
+        first: pageSize,
+    });
+
+    fetchedAssets = firstFetch.assets as Asset[];
+    setAssets(fetchedAssets);
+
+    await processImages(fetchedAssets, db);
+
+    setProgress((fetchedAssets.length / totalCount) * 100);
+
+    let page = 0;
+    while (fetchedAssets.length < totalCount) {
+      page += 1;
+      const nextFetch = await MediaLibrary.getAssetsAsync({
+          mediaType: 'photo',
+          sortBy: [[MediaLibrary.SortBy.creationTime, false]],
+          first: pageSize,
+          after: fetchedAssets[fetchedAssets.length - 1].id,
+      });
+
+      fetchedAssets = [...fetchedAssets, ...nextFetch.assets];
+      setAssets(fetchedAssets);
+
+      await processImages(nextFetch.assets, db);
+
+      setProgress((fetchedAssets.length / totalCount) * 100);
+    }
+
+    await AsyncStorage.setItem(ASSETS_CACHE_KEY, JSON.stringify(fetchedAssets));
+  };
+
+  const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
+    for (let i = 0; i < assets.length; i++) {
+        const asset = assets[i];
+        const keywords = await extractKeywords(asset);
+        const embeddings = await extractEmbeddings(asset);
         await insertOrUpdateAsset(asset, keywords, embeddings, db);
-      }
-    };
+    }
+  };
 
-    // Insert or update image data in the database
-    const insertOrUpdateAsset = async (asset: Asset, keywords: string[], embeddings: number[], db: SQLite.SQLiteDatabase) => {
-      const { uri: fileUri } = asset;
-      try{
-        await db.runAsync(
-          `INSERT OR REPLACE INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
-          [fileUri, JSON.stringify(keywords), JSON.stringify(embeddings)]
-        )
-      } catch {
-        console.log("Failed to insert/update asset!");
-      }
-    };
 
-    // Delete image data from the database
-    const deleteAsset = async (filepath: string, db: SQLite.SQLiteDatabase) => {
-      try{
-        await db.runAsync(
-          `DELETE FROM images WHERE filepath = ?`,
-          [filepath]
-        );
-      } catch {
-        console.log("Failed to delete asset!");
-      }
-    };
+  const insertOrUpdateAsset = async (asset: Asset, keywords: string[], embeddings: number[], db: SQLite.SQLiteDatabase) => {
+    const { uri: fileUri } = asset;
+    try {
+      await db.runAsync(
+        `INSERT OR REPLACE INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
+        [fileUri, JSON.stringify(keywords), JSON.stringify(embeddings)]
+      );
+    } catch {
+      console.log("Failed to insert/update asset!");
+    }
+  };
 
-    // Update the database with new assets and remove missing ones
-    const updateDatabase = async (fetchedAssets: Asset[], db: SQLite.SQLiteDatabase) => {
-      try{
-        const dbAssets: Row[] = await db.getAllAsync('SELECT * FROM images');
+  const deleteAsset = async (filepath: string, db: SQLite.SQLiteDatabase) => {
+    try {
+      await db.runAsync(`DELETE FROM images WHERE filepath = ?`, [filepath]);
+    } catch {
+      console.log("Failed to delete asset!");
+    }
+  };
 
-        const dbFilepaths: string[] = dbAssets.map(row => row.filepath);
+  const extractKeywords = async (asset: Asset): Promise<string[]> => {
+    // Placeholder for actual keyword extraction logic
+    return ['keyword1', 'keyword2'];
+  };
 
-        const newAssets = fetchedAssets.filter(asset => !dbFilepaths.includes(asset.uri));
+  const extractEmbeddings = async (asset: Asset): Promise<number[]> => {
+    return await FeatureExtraction(asset);
+  };
 
-        const deletedAssets = dbFilepaths.filter(filepath => !fetchedAssets.find(asset => asset.uri === filepath));
-
-        if (newAssets.length > 0) {
-          await processImages(newAssets, db);
-        }
-
-        if (deletedAssets.length > 0) {
-          for (const filepath of deletedAssets) {
-            await deleteAsset(filepath, db);
-          }
-        }
-      } catch {
-        console.log("Failed to update database!");
-      }
-    };
-
-    // Dummy feature extraction methods
-    const extractKeywords = async (fileUri: string): Promise<string[]> => {
-      return ['keyword1', 'keyword2'];
-    };
-
-    const extractEmbeddings = async (fileUri: string): Promise<number[]> => {
-      return [0.1, 0.2, 0.3];
-    };
-
-    return {progress, isComplete};
+  return { progress, isComplete, isLoading };
 };
