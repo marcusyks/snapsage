@@ -58,7 +58,7 @@ const similarity = async (filepathA: string, embeddingsB: string, db: SQLite.SQL
 
     } catch (error) {
         console.log(`Error getting row for similarity search: ${error}`);
-        return null; // Return null on error
+        return null;
     }
 };
 
@@ -76,7 +76,7 @@ export const GetSimilarAssets = (filepathA: string) => {
             const db = await SQLite.openDatabaseAsync(DB_KEY); // Open the database
 
             try {
-                const dbRows: Row[] = await db.getAllAsync('SELECT * FROM images WHERE filepath != ?', filepathA); // Fetch all assets
+                const dbRows: Row[] = await db.getAllAsync('SELECT * FROM images WHERE filepath != ? AND embeddings IS NOT NULL', filepathA); // Fetch all non-null assets
                 const similarityResults: (boolean | null)[] = await Promise.all(
                     dbRows.map(async (row) => {
                         const r = await similarity(filepathA, row.embeddings, db); // Check similarity for each asset

@@ -4,7 +4,7 @@ import { Asset } from 'expo-media-library';
 import { Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
-import { FeatureExtraction } from '@/functions/featureExtraction';
+import { ImageExtraction } from '@/functions/imageExtraction';
 
 export interface Row {
   embeddings: string;
@@ -107,8 +107,7 @@ export const initializeAndUpdate = () => {
   const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
     for (let i = 0; i < assets.length; i++) {
         const asset = assets[i];
-        const keywords = await extractKeywords(asset);
-        const embeddings = await extractEmbeddings(asset);
+        const [keywords, embeddings] = await extractKeywordEmbedding(asset);
         await insertOrUpdateAsset(asset, keywords, embeddings, db);
     }
   };
@@ -119,7 +118,7 @@ export const initializeAndUpdate = () => {
     try {
       await db.runAsync(
         `INSERT OR REPLACE INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
-        [fileUri, JSON.stringify(keywords), JSON.stringify(embeddings)]
+        [fileUri, keywords? JSON.stringify(keywords) : null, embeddings? JSON.stringify(embeddings) : null]
       );
     } catch {
       console.log("Failed to insert/update asset!");
@@ -134,13 +133,8 @@ export const initializeAndUpdate = () => {
     }
   };
 
-  const extractKeywords = async (asset: Asset): Promise<string[]> => {
-    // Placeholder for actual keyword extraction logic
-    return ['keyword1', 'keyword2'];
-  };
-
-  const extractEmbeddings = async (asset: Asset): Promise<number[]> => {
-    return await FeatureExtraction(asset);
+  const extractKeywordEmbedding = async (asset: Asset): Promise<[string[], number[]]> => {
+    return await ImageExtraction(asset);
   };
 
   return { progress, isComplete, isLoading };
