@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Asset } from "expo-media-library";
 import * as SQLite from 'expo-sqlite';
-import { Row } from "@/hooks/initializeAndUpdate"; // Ensure Row is defined in your imports
 import { getAssets } from './getAssets';
 
 const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;

@@ -2,16 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { Asset } from 'expo-media-library';
 
 const numberToRender = 30;
 const marginBetweenImages = 4;
 const imageDimensionAdjust = marginBetweenImages * 4;
-
-
-interface GalleryDisplayProps {
-  assets: Asset[] | undefined; // Assuming you're passing the assets from cache
-}
 
 const { width } = Dimensions.get('window'); // Get screen width for layout
 

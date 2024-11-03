@@ -2,14 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 import { useEffect, useState, useMemo } from "react";
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import * as SQLite from 'expo-sqlite';
-import { Asset } from 'expo-media-library';
 import { loadAssetsByKeyword } from '@/hooks/loadAssetsByKeyword';
-
-interface CustomSearchProps {
-    assets: Asset[];
-    onSearchResultsChange: (searchedAssets: Asset[], search: string) => void; // Callback to update the parent component
-}
 
 const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
 

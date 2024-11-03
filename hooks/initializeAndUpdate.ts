@@ -6,12 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 import { ImageExtraction } from '@/functions/imageExtraction';
 
-export interface Row {
-  embeddings: string;
-  filepath: string;
-  keywords: string;
-}
-
 const ASSETS_CACHE_KEY = process.env.EXPO_PUBLIC_ASSETS_CACHE_KEY as string;
 const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
 

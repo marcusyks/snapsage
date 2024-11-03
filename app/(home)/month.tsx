@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-import EditScreenInfo, { TypeOfContent } from '@/components/ImagesScreen';
 import { Text, View } from '@/components/Themed';
 import ImagesScreen from '@/components/ImagesScreen';
 

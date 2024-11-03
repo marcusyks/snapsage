@@ -8,9 +8,7 @@ import { Image } from 'expo-image';
 import { GalleryDisplay } from '@/components/GalleryDisplay';
 import { GetSimilarAssets } from '@/hooks/getSimilarAsset';
 
-
-const spaceFromSides = 10;
-const { width } = Dimensions.get('window'); // Get screen width for layout
+const { width } = Dimensions.get('window');
 
 export default function ImageModal() {
   const { asset } = useLocalSearchParams<{ asset : string }>(); // Get route parameters

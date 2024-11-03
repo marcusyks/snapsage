@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
-import { MonthList } from '@/hooks/getAssets';
 import { Text, View } from './Themed';
 import { Link } from 'expo-router';
 import Colors from '@/constants/Colors'
@@ -9,15 +8,6 @@ import Colors from '@/constants/Colors'
 const numberToPreview = 8;
 const marginBetweenImages = 6;
 const imageDimensionAdjust = marginBetweenImages * 4;
-
-interface Asset {
-  id: string;
-  uri: string;
-}
-
-interface MonthDisplayProps {
-  assets: MonthList[] | undefined;
-}
 
 const { width } = Dimensions.get('window'); // Get screen width for layout
 

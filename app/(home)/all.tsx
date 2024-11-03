@@ -2,7 +2,6 @@ import { StyleSheet } from 'react-native';
 
 import ImagesScreen from '@/components/ImagesScreen';
 import { Text, View } from '@/components/Themed';
-import { TypeOfContent } from '@/components/ImagesScreen';
 
 
 export default function AllScreen() {

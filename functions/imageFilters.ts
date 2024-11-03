@@ -1,4 +1,3 @@
-import { MonthList, YearList } from "@/hooks/getAssets";
 import { Asset } from "expo-media-library";
 
 const convertTimeToMonthYear = (time: number) => {

@@ -6,16 +6,10 @@ import { getAssets } from '@/hooks/getAssets';
 import { GalleryDisplay } from './GalleryDisplay';
 import { MonthDisplay } from './MonthDisplay';
 import { YearDisplay } from './YearDisplay';
-import { Asset } from 'expo-media-library';
 import { CustomSearchBar } from './SearchBar';
-
 
 const spaceFromSides = 10;
 const titlePadding = spaceFromSides/1.5;
-
-
-export type TypeOfContent = 'all' | 'month' | 'year';
-
 
 export default function ImagesScreen({ name, type }: { name: string, type: TypeOfContent }) {
   const [searchedAssets, setSearchedAssets] = useState<Asset[]>([]);
