@@ -76,6 +76,6 @@ const styles = StyleSheet.create({
     height: (width / 3) - (imageDimensionAdjust), // Keep the images square
   },
   listContainer: {
-    paddingBottom: 200
+    paddingBottom: 400
   }
 });

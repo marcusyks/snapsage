@@ -24,7 +24,7 @@ export default function MonthModal() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <CustomNavBar/>
       <CustomSearchBar assets={parsedAssets as Asset[]}  onSearchResultsChange={handleSearchResultsChange} />
       <View style={styles.galleryContainer}>
@@ -37,7 +37,7 @@ export default function MonthModal() {
         (<View><Text style={styles.mainTitle}>{yearMonth}</Text><GalleryDisplay assets={parsedAssets}/></View>)
         }
         </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     container:{
       flex: 1,
       textAlign: 'left',
-      marginHorizontal: spaceFromSides,
+      paddingHorizontal: spaceFromSides,
     },
     mainTitle : {
       fontSize: 50,

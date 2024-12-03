@@ -25,7 +25,7 @@ export default function YearModal() {
 
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <CustomNavBar/>
       <CustomSearchBar assets={parsedAssets as Asset[]}  onSearchResultsChange={handleSearchResultsChange} />
       <View style={styles.galleryContainer}>
@@ -35,7 +35,7 @@ export default function YearModal() {
         (<View><Text style={styles.mainTitle}>{year}</Text><GalleryDisplay assets={searchedAssets.length > 0 ? searchedAssets : parsedAssets}/></View>)
         }
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -43,20 +43,20 @@ const styles = StyleSheet.create({
     container:{
       flex: 1,
       textAlign: 'left',
-      marginHorizontal: spaceFromSides,
+      paddingHorizontal: spaceFromSides,
     },
     mainTitle : {
       fontSize: 50,
       fontWeight: 'bold',
       textAlign: 'left',
-      marginLeft: titlePadding,
+      paddingLeft: titlePadding,
     },
     galleryContainer : {
-      marginTop: spaceFromSides
+      paddingTop: spaceFromSides
     },
     errorMessage : {
       textAlign: 'center',
-      marginTop: 20,
+      paddingTop: 20,
     }
   });
 

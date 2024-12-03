@@ -74,8 +74,4 @@ const styles = StyleSheet.create({
     inputContainer: {
         height: 50, // Set a fixed height for the input container
     },
-    loadingIndicator: {
-        marginTop: 10, // Keep the loading indicator aligned
-        alignSelf: 'center', // Center the loading indicator
-    },
 });

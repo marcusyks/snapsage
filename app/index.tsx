@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View } from '../components/Themed'
 import {
-  SafeAreaView,
   StyleSheet,
   Linking,
+  useColorScheme,
 } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { initializeAndUpdate } from '@/hooks/initializeAndUpdate';
 import { router } from 'expo-router';
+import Colors from '@/constants/Colors';
 
 
 export default function App() {
   const {progress, isComplete} = initializeAndUpdate();
+  const colorScheme = useColorScheme();
 
   useEffect(()=>{
     if(isComplete){
@@ -25,8 +27,8 @@ export default function App() {
         <AnimatedCircularProgress
           size={200}
           width={30}
-          fill={progress} // Use the current progress value
-          tintColor="gray"
+          fill={progress}
+          tintColor={Colors[colorScheme ?? 'light'].tint}
           backgroundColor="white"
           rotation={0}
         />
@@ -36,7 +38,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {progress < 100 ?
         ( <Text style={styles.progressText}>
             Loading
@@ -48,7 +50,7 @@ export default function App() {
         )
       }
       {renderProgressBar()}
-    </SafeAreaView>
+    </View>
   );
 }
 

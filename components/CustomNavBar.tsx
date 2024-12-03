@@ -26,12 +26,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 4,
+    marginTop: 32,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     width: '100%',
   },
   navButton: {
-    padding: 6,
+    padding: 4,
   },
   button: {
     color: 'white',
