@@ -11,7 +11,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={22} style={{ marginBottom: 2 }} {...props} />;
 }
 
 export default function HomeLayout() {
@@ -30,7 +30,7 @@ export default function HomeLayout() {
         name="all"
         options={{
           title: 'All',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="image" color={color} />,
           headerShown: false,
         }}
       />
@@ -38,7 +38,7 @@ export default function HomeLayout() {
         name="month"
         options={{
           title: 'Month',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
           headerShown: false
         }}
       />
@@ -46,7 +46,7 @@ export default function HomeLayout() {
         name="year"
         options={{
           title: 'Year',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="bars" color={color} />,
           headerShown: false
         }}
       />

@@ -58,6 +58,7 @@ export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = []}) =
       renderItem={renderItem}
       keyExtractor={(item) => item.id}
       numColumns={3} // Display in a grid
+      showsVerticalScrollIndicator={false}
       onEndReached={loadMoreAssets} // Load more assets when scrolled to the end
       onEndReachedThreshold={0.5} // Trigger the load more function when halfway through the list
       initialNumToRender={numberToRender} // Number of items to render initially
