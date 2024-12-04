@@ -94,8 +94,7 @@ export const initializeAndUpdate = () => {
 
       setProgress((fetchedAssets.length / totalCount) * 100);
     }
-
-    await AsyncStorage.setItem(ASSETS_CACHE_KEY, JSON.stringify(fetchedAssets));
+    await cleanUpDeletedAssets(fetchedAssets, db);
   };
 
   const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
@@ -129,6 +128,23 @@ export const initializeAndUpdate = () => {
 
   const extractKeywordEmbedding = async (asset: Asset): Promise<[string[], number[]]> => {
     return await ImageExtraction(asset);
+  };
+
+  const cleanUpDeletedAssets = async (currentAssets: Asset[], db: SQLite.SQLiteDatabase) => {
+    try {
+      const currentFilePaths = currentAssets.map((asset) => asset.uri);
+      const dbResults = await db.getAllAsync(`SELECT filepath FROM images`);
+      const dbFilePaths = dbResults.map((row: any) => row.filepath);
+
+      // Find and delete assets that are in the database but not in current assets
+      const toDelete = dbFilePaths.filter((path) => !currentFilePaths.includes(path));
+      for (const path of toDelete) {
+        await deleteAsset(path, db);
+      }
+      await AsyncStorage.setItem(ASSETS_CACHE_KEY, JSON.stringify(currentAssets));
+    } catch (error) {
+      console.log("Failed to clean up deleted assets!", error);
+    }
   };
 
   return { progress, isComplete, isLoading };

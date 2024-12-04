@@ -5,27 +5,35 @@ import { CustomNavBar } from '@/components/CustomNavBar';
 import { Image } from 'expo-image';
 import { GalleryDisplay } from '@/components/GalleryDisplay';
 import { GetSimilarAssets } from '@/hooks/getSimilarAsset';
-import CustomButton from '@/components/CustomButton';
 import Colors from '@/constants/Colors';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { loadKeywordsByAsset } from '@/hooks/loadKeywordsByAsset';
+import Keywords from '@/components/Keywords';
 
 const { width, height } = Dimensions.get('window');
-const estimatedNavBarHeight = 100;
 const spaceFromSides = 10;
+const estimatedNavBarHeight = 200;
 
 export default function ImageModal() {
   const { asset } = useLocalSearchParams<{ asset: string }>(); // Get route parameters
   const parsedAsset = JSON.parse(asset as string); // Convert assets from string back to object
   const { similarAssets, loading, error, refetch } = GetSimilarAssets(parsedAsset.uri);
+  const flatListRef = useRef<FlatList>(null); // Ref for FlatList
+  const [keywords, setKeywords] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchKeywords = async() => {
+      const keywordsList : string[] = await loadKeywordsByAsset(parsedAsset.uri);
+      setKeywords(keywordsList);
+    }
     refetch();
+    fetchKeywords();
   }, [parsedAsset.uri]);
 
   const getRatio = (w: number, h: number) => {
     const ratio = w / h;
 
-    if (ratio > 1) {    //width longer than height
+    if (ratio > 1) { // Width longer than height
       return [width, width / ratio];
     } else {
       return [width * ratio, width];
@@ -33,10 +41,15 @@ export default function ImageModal() {
   };
   const [imageWidth, imageHeight] = getRatio(parsedAsset.width, parsedAsset.height);
 
+  const handleSimilarImagePress = () => {
+    flatListRef.current?.scrollToIndex({ index: 0, animated: true }); // Scroll to the image section
+  };
+
   const renderItem = ({ item }: { item: any }) => {
     if (item.type === 'image') {
       return (
-        <View style={[styles.imageContainer, { height: height - estimatedNavBarHeight }]}>
+        <View style={styles.imageContainer}>
+          <Text style={styles.filename}>{parsedAsset.filename}</Text>
           <Image
             source={{ uri: parsedAsset.uri }}
             style={{
@@ -45,10 +58,17 @@ export default function ImageModal() {
               alignSelf: 'center',
             }}
           />
-          <CustomButton>Info</CustomButton>
         </View>
       );
-    } else {
+    }
+    else if (item.type === 'keywords'){
+      return(
+        <View style={styles.keywordSection}>
+          <Keywords keywords={keywords} title={'Keywords'}/>
+        </View>
+      )
+    }
+    else {
       return (
         <View style={styles.similarSection}>
           <Text style={styles.similarText}>Similar Images</Text>
@@ -58,7 +78,7 @@ export default function ImageModal() {
             <Text style={styles.loadingText}>No similar images found...</Text>
           ) : (
             !loading && !error && similarAssets.length > 0 && (
-              <GalleryDisplay assets={similarAssets} />
+              <GalleryDisplay assets={similarAssets} onImagePress={handleSimilarImagePress} />
             )
           )}
         </View>
@@ -68,21 +88,23 @@ export default function ImageModal() {
 
   const data = [
     { type: 'image' }, // For the Image and Keywords section
+    { type: 'keywords'},
     { type: 'similarImages' }, // For the Similar Images section
   ];
 
   return (
     <View style={styles.container}>
       {/* Navbar Fixed at the Top */}
-      <CustomNavBar/>
+      <CustomNavBar />
 
       {/* FlatList for snap scrolling */}
       <FlatList
+        ref={flatListRef} // Attach ref to FlatList
         data={data}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
         showsVerticalScrollIndicator={false}
-        snapToInterval={height} // Snaps to the height of the screen
+        snapToInterval={height}
         snapToAlignment="start"
         decelerationRate="fast"
       />
@@ -91,19 +113,30 @@ export default function ImageModal() {
 }
 
 const styles = StyleSheet.create({
+  filename: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    padding: 32,
+  },
+  keywordSection:{
+    height: height + estimatedNavBarHeight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
     height: height,
     backgroundColor: Colors['dark'].background,
-    paddingHorizontal: spaceFromSides
+    paddingHorizontal: spaceFromSides,
   },
   imageContainer: {
+    height: height - estimatedNavBarHeight,
     justifyContent: 'center',
     alignItems: 'center',
   },
   similarSection: {
-    marginTop: estimatedNavBarHeight,
-    height: height,
+    minHeight: height,
+    marginBottom: 20,
   },
   similarText: {
     fontSize: 32,

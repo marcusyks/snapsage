@@ -13,6 +13,7 @@ declare interface Asset {
 
 declare interface GalleryDisplayProps {
     assets: Asset[] | undefined;
+    onImagePress?: () => void;
 }
 
 declare type TypeOfContent = 'all' | 'month' | 'year';
@@ -45,5 +46,10 @@ declare interface Row {
     embeddings: string;
     filepath: string;
     keywords: string;
+}
+
+declare interface KeywordList {
+    title: string;
+    keywords: string[] | undefined;
 }
 

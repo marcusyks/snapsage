@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
-import { YearList } from '@/hooks/getAssets';
 import { Text, View } from './Themed';
 import { Link } from 'expo-router';
 import Colors from '@/constants/Colors';

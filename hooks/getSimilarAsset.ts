@@ -40,7 +40,7 @@ const similarity = async (filepathA: string, embeddingsB: string, db: SQLite.SQL
 
         const simScore = cosineSimilarity(embeddingsAArray, embeddingsBArray);
 
-        const similarityThreshold = 0.5;
+        const similarityThreshold = 0.7;
         return simScore >= similarityThreshold;
 
     } catch (error) {

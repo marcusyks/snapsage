@@ -9,7 +9,7 @@ const imageDimensionAdjust = marginBetweenImages * 4;
 
 const { width } = Dimensions.get('window'); // Get screen width for layout
 
-export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = []}) => {
+export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = [], onImagePress}) => {
   const [currentAssets, setCurrentAssets] = useState<Asset[]>([]);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = []}) =
           params:{
             asset : JSON.stringify(item),
           }
-        }}>
+        }} onPress={onImagePress}>
           <Image source={{ uri: item.uri }} style={styles.image} />
         </Link>
       </View>
