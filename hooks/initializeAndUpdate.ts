@@ -100,21 +100,37 @@ export const initializeAndUpdate = () => {
   const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
     for (let i = 0; i < assets.length; i++) {
         const asset = assets[i];
-        const [keywords, embeddings] = await extractKeywordEmbedding(asset);
-        await insertOrUpdateAsset(asset, keywords, embeddings, db);
+        // Check if in database, if not,  extract and insert
+        if (!(await checkInDatabase(asset, db))){
+          const [keywords, embeddings] = await extractKeywordEmbedding(asset);
+          await insertAsset(asset, keywords, embeddings, db);
+        }
     }
   };
 
+  const checkInDatabase = async (asset: Asset, db: SQLite.SQLiteDatabase) => {
+    // Try fetching asset
+    try {
+      const fetchedAsset = await db.getFirstAsync('SELECT filepath FROM images WHERE filepath = ?', asset.uri);
+      // If unsuccessful, means it does not exist
+      return fetchedAsset !== null;
+    }
+    catch(error) {
+      console.log("Error happened while checking image in database: ", error);
+      return false;
+    }
+  }
 
-  const insertOrUpdateAsset = async (asset: Asset, keywords: string[], embeddings: number[], db: SQLite.SQLiteDatabase) => {
+
+  const insertAsset = async (asset: Asset, keywords: string[], embeddings: number[], db: SQLite.SQLiteDatabase) => {
     const { uri: fileUri } = asset;
     try {
       await db.runAsync(
-        `INSERT OR REPLACE INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
+        `INSERT INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
         [fileUri, keywords? JSON.stringify(keywords) : null, embeddings? JSON.stringify(embeddings) : null]
       );
     } catch {
-      console.log("Failed to insert/update asset!");
+      console.log("Failed to insert asset!");
     }
   };
 
