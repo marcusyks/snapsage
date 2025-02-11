@@ -16,42 +16,54 @@ const createBlobFromUri = async (uri: string): Promise<Blob | null> => {
     }
 };
 
-export const ImageExtraction = async (asset: Asset): Promise<any> => {
+export const ImageExtraction = async (assets: Asset[]): Promise<any> => {
     const SERVER_IP = process.env.EXPO_PUBLIC_SERVER_IP as string;
 
     try {
-        const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
-        const localUri = assetInfo.localUri;
-        if (!localUri) {
-            console.error("No local URI found for the asset.");
-            return null;
+        const blobs = await Promise.all(assets.map(async (asset) => {
+            const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
+            const localUri = assetInfo.localUri;
+            if (!localUri) {
+                console.error(`No local URI found for asset: ${asset.filename}`);
+                return null;
+            }
+            const blob = await createBlobFromUri(localUri);
+            return { fileName : asset.filename, blob, uri: localUri};
+        }));
+
+        // Create a FormData object and append all images
+        const formData = new FormData();
+        blobs.forEach(blobData => {
+            if (blobData?.blob) {
+                formData.append('image', {
+                    uri: blobData?.uri,
+                    name: blobData?.fileName,
+                    type: blobData?.blob.type
+                });  // 'image' is the key
+            }
+        });
+
+        // Send batch request to Flask server
+        const response = await fetch(`${SERVER_IP}/extract-images`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const blob = await createBlobFromUri(localUri);
+        // Expecting an array of results from the server (array of embeddings and keywords)
+        const data = await response.json();
 
-        if (blob) {
-            const formData = new FormData();
-            formData.append('image', {
-                uri: localUri,
-                name: asset.filename,
-                type: blob.type,
-            });
-
-            const response = await fetch(`${SERVER_IP}/extract-image`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return [data.keywords, data.embeddings];
-        } else {
-            console.error("Blob creation failed.");
+        // Ensure the response matches the number of assets sent
+        if (!Array.isArray(data) || data.length !== blobs.length) {
+            console.error("Mismatch in server response and images sent.");
             return [null, null];
         }
+
+        return data.map(item => [item.keywords, item.embeddings]);
+
     } catch (error) {
         console.error("Error sending asset for feature extraction:", error);
         return [null, null];

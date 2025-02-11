@@ -59,15 +59,13 @@ export const initializeAndUpdate = () => {
       mediaType: 'photo',
     });
 
-    // Dynamic paging
-    const maxPageSize = 50;
-    const calculatedPageSize = Math.max(Math.ceil(totalCount * 0.1), 1); // Use 10% of total assets or at least 1
-    const pageSize = Math.min(calculatedPageSize, maxPageSize); // Ensure it doesn't exceed maxPageSize
+    // Block has 10 pages, each page has 16 assets
+    const blockSize = 160;
 
     const firstFetch = await MediaLibrary.getAssetsAsync({
         mediaType: 'photo',
         sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-        first: pageSize,
+        first: blockSize,
     });
 
     fetchedAssets = firstFetch.assets as Asset[];
@@ -77,13 +75,13 @@ export const initializeAndUpdate = () => {
 
     setProgress((fetchedAssets.length / totalCount) * 100);
 
-    let page = 0;
+    let block = 0;
     while (fetchedAssets.length < totalCount) {
-      page += 1;
+      block += 1;
       const nextFetch = await MediaLibrary.getAssetsAsync({
           mediaType: 'photo',
           sortBy: [[MediaLibrary.SortBy.creationTime, false]],
-          first: pageSize,
+          first: blockSize,
           after: fetchedAssets[fetchedAssets.length - 1].id,
       });
 
@@ -92,21 +90,60 @@ export const initializeAndUpdate = () => {
 
       await processImages(nextFetch.assets, db);
 
+      console.log(`Processed: ${fetchedAssets.length}, Total: ${totalCount}`)
+
       setProgress((fetchedAssets.length / totalCount) * 100);
     }
     await cleanUpDeletedAssets(fetchedAssets, db);
   };
 
   const processImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
-    for (let i = 0; i < assets.length; i++) {
-        const asset = assets[i];
-        // Check if in database, if not,  extract and insert
-        if (!(await checkInDatabase(asset, db))){
-          const [keywords, embeddings] = await extractKeywordEmbedding(asset);
-          await insertAsset(asset, keywords, embeddings, db);
-        }
+    // Helper function to split array into chunks
+    const chunkArray = (array: Asset[], size: number) => {
+      const result = [];
+      for (let i = 0; i < array.length; i += size) {
+          result.push(array.slice(i, i + size));
+      }
+      return result;
+    };
+
+    // 128 assets each block
+    const checkResults = await Promise.all(
+        assets.map(async (asset) => {
+            const exists = await checkInDatabase(asset, db);
+            return exists ? null : asset; // Keep only unprocessed assets
+        })
+    );
+
+    // Filter out null values (processed assets)
+    const newAssets = checkResults.filter(Boolean) as Asset[];
+
+    if (newAssets.length === 0) {
+        return;
     }
-  };
+
+    // Process in batches of 32
+    const batchSize = 16;
+    const batchedAssets = chunkArray(newAssets, batchSize);
+
+    try {
+      for (const batch of batchedAssets) {
+
+        // Perform parallel processing of batch
+        const [keywordsArray, embeddingsArray] = await ImageExtraction(batch);
+
+        // Insert new assets into the database
+        for (let i = 0; i < batch.length; i++) {
+            const asset = batch[i];
+            const keywords = keywordsArray[i];
+            const embeddings = embeddingsArray[i];
+            await insertAsset(asset, keywords, embeddings, db);
+        }
+      }
+    } catch (error) {
+        console.log("Error happened while processing images: ", error);
+    }
+};
 
   const checkInDatabase = async (asset: Asset, db: SQLite.SQLiteDatabase) => {
     // Try fetching asset
@@ -142,9 +179,6 @@ export const initializeAndUpdate = () => {
     }
   };
 
-  const extractKeywordEmbedding = async (asset: Asset): Promise<[string[], number[]]> => {
-    return await ImageExtraction(asset);
-  };
 
   const cleanUpDeletedAssets = async (currentAssets: Asset[], db: SQLite.SQLiteDatabase) => {
     try {
