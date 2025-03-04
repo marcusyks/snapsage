@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View } from '../components/Themed'
+import { Text, View, Image, Dimensions } from 'react-native';
 import {
   StyleSheet,
-  Linking,
   useColorScheme,
 } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
@@ -10,6 +9,8 @@ import { initializeAndUpdate } from '@/hooks/initializeAndUpdate';
 import { router } from 'expo-router';
 import Colors from '@/constants/Colors';
 
+const { height } = Dimensions.get('window'); // Get screen height for layout
+const logoSize = height * 0.3
 
 export default function App() {
   const {progress, isComplete} = initializeAndUpdate();
@@ -39,22 +40,18 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {progress < 100 ?
-        ( <Text style={styles.progressText}>
-            Loading
-          </Text>) :
-        (
-          <Text style={styles.progressText}>
-            Finishing up...
-          </Text>
-        )
-      }
+      <Image source={require('@/assets/images/snapsage_name.png')} style={styles.image}/>
       {renderProgressBar()}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  image: {
+    height: logoSize,
+    width: logoSize,
+    padding: 0,
+  },
   container: {
     height: '100%',
     display: 'flex',
@@ -63,7 +60,7 @@ const styles = StyleSheet.create({
   },
   progressText: {
     textAlign: 'center',
-    marginBottom: 10,
+    marginTop: 10,
     fontSize: 30,
     fontWeight: 'bold',
   },

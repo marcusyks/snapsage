@@ -19,7 +19,7 @@ export default function Keywords(props: KeywordList) {
       {/* Conditionally render keywords when loaded */}
       <View style={styles.keywordContainer}>
         {
-          keywords.length > 0 ? (
+          keywords && keywords.length > 0 ? (
             keywords.map((keyword,index)=>(
               <Text key={index} style={styles.keyword}>
                 {keyword}

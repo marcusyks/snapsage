@@ -49,11 +49,6 @@ export default function ImagesScreen({ name, type }: { name: string, type: TypeO
   );
 }
 
-// AssetEntry component to display each asset
-interface AssetEntryProps {
-  asset: Asset;
-}
-
 const styles = StyleSheet.create({
   container:{
     flex: 1,

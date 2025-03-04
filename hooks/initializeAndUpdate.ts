@@ -21,12 +21,17 @@ export const initializeAndUpdate = () => {
       setIsLoading(true); // Start loading
 
       if (!permissionResponse || permissionResponse.status !== 'granted') {
-        await requestPermission();
-      } else if (!permissionResponse.canAskAgain) {
-        Linking.openSettings();
+        const response = await requestPermission();
+
+        if (!response || response.status !== 'granted') {
+          console.log("Permission denied by user.");
+          Linking.openSettings();
+          return;
+        }
       }
 
       if (permissionResponse?.status === 'granted') {
+        console.log("Permission granted by user.");
         const db = await SQLite.openDatabaseAsync(DB_KEY);
         await initializeDatabase(db);
         await fetchAndProcessAssets(db);
@@ -47,6 +52,7 @@ export const initializeAndUpdate = () => {
         PRAGMA journal_mode = WAL;
         CREATE TABLE IF NOT EXISTS images (filepath TEXT PRIMARY KEY NOT NULL, keywords TEXT, embeddings TEXT);
       `);
+      // await db.execAsync(`DROP TABLE images`)
     } catch {
       console.log("Failed to load database!");
     }
@@ -74,6 +80,7 @@ export const initializeAndUpdate = () => {
     await processImages(fetchedAssets, db);
 
     setProgress((fetchedAssets.length / totalCount) * 100);
+    console.log(`Processed: ${fetchedAssets.length}, Total: ${totalCount}`)
 
     let block = 0;
     while (fetchedAssets.length < totalCount) {
@@ -122,7 +129,7 @@ export const initializeAndUpdate = () => {
         return;
     }
 
-    // Process in batches of 32
+    // Process in batches of 16
     const batchSize = 16;
     const batchedAssets = chunkArray(newAssets, batchSize);
 
@@ -164,7 +171,7 @@ export const initializeAndUpdate = () => {
     try {
       await db.runAsync(
         `INSERT INTO images (filepath, keywords, embeddings) VALUES (?, ?, ?)`,
-        [fileUri, keywords? JSON.stringify(keywords) : null, embeddings? JSON.stringify(embeddings) : null]
+        [fileUri, keywords? JSON.stringify(keywords) : JSON.stringify([]), embeddings? JSON.stringify(embeddings) : JSON.stringify([])]
       );
     } catch {
       console.log("Failed to insert asset!");

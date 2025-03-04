@@ -12,7 +12,7 @@ import Keywords from '@/components/Keywords';
 
 const { width, height } = Dimensions.get('window');
 const spaceFromSides = 10;
-const estimatedNavBarHeight = 200;
+const estimatedNavBarHeight = 240;
 
 export default function ImageModal() {
   const { asset } = useLocalSearchParams<{ asset: string }>(); // Get route parameters
