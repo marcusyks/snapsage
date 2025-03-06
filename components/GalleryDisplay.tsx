@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
@@ -6,20 +6,17 @@ import { Link } from 'expo-router';
 const numberToRender = 30;
 const marginBetweenImages = 4;
 const imageDimensionAdjust = marginBetweenImages * 4;
-
 const { width } = Dimensions.get('window'); // Get screen width for layout
 
-export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = [], onImagePress}) => {
+export const GalleryDisplay: React.FC<GalleryDisplayProps> = ({ assets = [], onImagePress }) => {
   const [currentAssets, setCurrentAssets] = useState<Asset[]>([]);
 
   useEffect(() => {
-    // Initially set the first few assets
-    setCurrentAssets(assets.slice(0, numberToRender)); // Load the first 30 items
+    setCurrentAssets(assets.slice(0, numberToRender)); // Load initial images
   }, [assets]);
 
   const loadMoreAssets = () => {
     if (currentAssets.length < assets.length) {
-      // Add more assets to the list when the user scrolls down
       setCurrentAssets((prevAssets) => [
         ...prevAssets,
         ...assets.slice(prevAssets.length, prevAssets.length + numberToRender),
@@ -27,56 +24,61 @@ export const GalleryDisplay: React.FC<GalleryDisplayProps> = (({ assets = [], on
     }
   };
 
-  const renderItem = (({ item }: { item: Asset }) => {
+  const addPlaceholders = (data: Asset[]) => {
+    const mod = data.length % 3;
+    if (mod === 0) return data;
+    return [...data, ...new Array(3 - mod).fill({ id: `placeholder-${mod}`, uri: '' })];
+  };
+
+  const RenderItem = React.memo(({ item }: { item: Asset }) => {
+    if (!item.uri) return <View style={styles.imageContainer} />;
+
     return (
       <View style={styles.imageContainer}>
-        <Link href={{
-          pathname:'/image/[asset]',
-          params:{
-            asset : JSON.stringify(item),
-          }
-        }} onPress={onImagePress}>
+        <Link
+          href={{
+            pathname: '/image/[asset]',
+            params: { asset: JSON.stringify(item) },
+          }}
+          onPress={onImagePress}
+        >
           <Image source={{ uri: item.uri }} style={styles.image} />
         </Link>
       </View>
     );
   });
 
-  // Add empty placeholders to maintain the 3-column grid layout
-  const addPlaceholders = (data: Asset[]) => {
-    const mod = data.length % 3;
-    if (mod === 0) return data;
-
-    // Add empty items until the total number is divisible by 3
-    const placeholders = new Array(3 - mod).fill({ id: `placeholder-${mod}`, uri: '' });
-    return [...data, ...placeholders];
-  };
+  const renderItem = useCallback(({ item }: { item: Asset }) => <RenderItem item={item} />, []);
 
   return (
     <FlatList
       data={addPlaceholders(currentAssets)}
       renderItem={renderItem}
-      keyExtractor={(item) => item.id}
-      numColumns={3} // Display in a grid
+      keyExtractor={(item) => item.id.toString()}
+      numColumns={3}
       showsVerticalScrollIndicator={false}
-      onEndReached={loadMoreAssets} // Load more assets when scrolled to the end
-      onEndReachedThreshold={0.5} // Trigger the load more function when halfway through the list
-      initialNumToRender={numberToRender} // Number of items to render initially
+      onEndReached={loadMoreAssets}
+      onEndReachedThreshold={0.5}
+      initialNumToRender={numberToRender}
+      maxToRenderPerBatch={10}
+      updateCellsBatchingPeriod={50}
+      windowSize={5}
+      removeClippedSubviews={true}
       contentContainerStyle={styles.listContainer}
     />
   );
-});
+};
 
 const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,
-    margin: marginBetweenImages, // Minimal gaps between images
+    margin: marginBetweenImages,
   },
   image: {
-    width: (width / 3) - (imageDimensionAdjust), // Adjust for margin
-    height: (width / 3) - (imageDimensionAdjust), // Keep the images square
+    width: width / 3 - imageDimensionAdjust,
+    height: width / 3 - imageDimensionAdjust,
   },
   listContainer: {
-    paddingBottom: 400
-  }
+    paddingBottom: 400,
+  },
 });

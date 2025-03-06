@@ -5,6 +5,7 @@ import { Linking } from 'react-native';
 import * as SQLite from 'expo-sqlite';
 import { CleanUpDeletedAssets, InitializeDatabase, OpenDatabase } from '@/controllers/databaseManager';
 import { ProcessImages } from '@/controllers/imageManager';
+import { CreateEmbeddingIndexTable } from '@/controllers/embeddingManager';
 
 export const initializeAndUpdate = () => {
   const [progress, setProgress] = useState<number>(0);
@@ -87,6 +88,7 @@ export const initializeAndUpdate = () => {
       setProgress((fetchedAssets.length / totalCount) * 100);
     }
     await CleanUpDeletedAssets(fetchedAssets, db);
+    await CreateEmbeddingIndexTable(db);
   };
 
   return { progress, isComplete, isLoading };

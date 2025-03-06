@@ -48,6 +48,12 @@ declare interface Row {
     keywords: string;
 }
 
+declare interface IndexRow {
+    embeddings: string;
+    filepath: string;
+    hash: string;
+}
+
 declare interface KeywordList {
     title: string;
     keywords: string[] | undefined;
