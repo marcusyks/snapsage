@@ -1,5 +1,7 @@
 import * as MediaLibrary from 'expo-media-library';
 import { Asset } from 'expo-media-library';
+import * as SQLite from 'expo-sqlite';
+import { CheckInDatabase, InsertAsset } from './databaseManager';
 
 const createBlobFromUri = async (uri: string): Promise<Blob | null> => {
     try {
@@ -16,7 +18,7 @@ const createBlobFromUri = async (uri: string): Promise<Blob | null> => {
     }
 };
 
-export const ImageExtraction = async (assets: Asset[]): Promise<any> => {
+const imageExtraction = async (assets: Asset[]): Promise<any> => {
     const SERVER_IP = process.env.EXPO_PUBLIC_SERVER_IP as string;
 
     try {
@@ -62,10 +64,56 @@ export const ImageExtraction = async (assets: Asset[]): Promise<any> => {
             return [null, null];
         }
 
-        return data.map(item => [item.keywords, item.embeddings]);
+        return data.map(item => ({
+            keywords: item.keywords,
+            embeddings: item.embeddings
+        }));
 
     } catch (error) {
         console.error("Error sending asset for feature extraction:", error);
         return [null, null];
+    }
+};
+
+export const ProcessImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
+    // Helper function to split array into chunks
+    const chunkArray = (array: Asset[], size: number) => {
+      const result = [];
+      for (let i = 0; i < array.length; i += size) {
+          result.push(array.slice(i, i + size));
+      }
+      return result;
+    };
+
+    // 128 assets each block
+    const checkResults = await Promise.all(
+        assets.map(async (asset) => {
+            const exists = await CheckInDatabase(asset, db);
+            return exists ? null : asset; // Keep only unprocessed assets
+        })
+    );
+
+    // Filter out null values (processed assets)
+    const newAssets = checkResults.filter(Boolean) as Asset[];
+
+    if (newAssets.length === 0) {
+        return;
+    }
+
+    // Process in batches of 16
+    const batchSize = 16;
+    const batchedAssets = chunkArray(newAssets, batchSize);
+
+    try {
+      for (const batch of batchedAssets) {
+        const extractedData = await imageExtraction(batch);
+        for (let i = 0; i < batch.length; i++) {
+            const asset = batch[i];
+            const { keywords, embeddings } = extractedData[i];
+            await InsertAsset(asset, keywords, embeddings, db);
+        }
+      }
+    } catch (error) {
+        console.log("Error happened while processing images: ", error);
     }
 };
