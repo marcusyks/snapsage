@@ -2,7 +2,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchBarIOS } from "@rneui/base/dist/SearchBar/SearchBar-ios";
 import { useEffect, useState, useMemo } from "react";
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
-import { loadAssetsByKeyword } from '@/hooks/loadAssetsByKeyword';
+import { loadAssetsByKeyword } from '@/controllers/keywordManager';
 
 const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
 

@@ -7,7 +7,7 @@ import { GalleryDisplay } from '@/components/GalleryDisplay';
 import { GetSimilarAssets } from '@/hooks/getSimilarAsset';
 import Colors from '@/constants/Colors';
 import { useEffect, useRef, useState } from 'react';
-import { loadKeywordsByAsset } from '@/hooks/loadKeywordsByAsset';
+import { loadKeywordsByAsset } from '@/controllers/keywordManager';
 import Keywords from '@/components/Keywords';
 
 const { width, height } = Dimensions.get('window');
