@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 
-const numberToRender = 30;
+const numberToRender = 50;
 const marginBetweenImages = 4;
 const imageDimensionAdjust = marginBetweenImages * 4;
 const { width } = Dimensions.get('window'); // Get screen width for layout
@@ -60,8 +60,7 @@ export const GalleryDisplay: React.FC<GalleryDisplayProps> = ({ assets = [], onI
       onEndReached={loadMoreAssets}
       onEndReachedThreshold={0.5}
       initialNumToRender={numberToRender}
-      maxToRenderPerBatch={10}
-      updateCellsBatchingPeriod={50}
+      updateCellsBatchingPeriod={20}
       windowSize={5}
       removeClippedSubviews={true}
       contentContainerStyle={styles.listContainer}

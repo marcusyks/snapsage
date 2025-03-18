@@ -9,7 +9,6 @@ const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
 export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchResultsChange }) => {
     const [searchKeyword, setSearchKeyword] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const allAssets = useMemo(() => assets, [assets]);
 
     useEffect(() => {
         const fetchAssets = async () => {
@@ -17,7 +16,7 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
                 setLoading(true);
                 try {
                     const fileURIs = await loadAssetsByKeyword(searchKeyword);
-                    const filteredAssets = allAssets.filter(asset => fileURIs.includes(asset.uri));
+                    const filteredAssets = assets.filter(asset => fileURIs.includes(asset.uri));
                     onSearchResultsChange(filteredAssets, searchKeyword);
                 } catch (error) {
                     console.error("Error fetching assets:", error);
@@ -40,11 +39,6 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
         };
     }, [searchKeyword]);
 
-    const clearSearchKeyword = () => {
-        console.log('clear button');
-        setSearchKeyword('');
-    }
-
     return (
         <View style={styles.container}>
             <SearchBarIOS
@@ -58,7 +52,7 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
                 cancelButtonTitle='Clear'
                 value={searchKeyword}
             />
-            {loading && <ActivityIndicator size="small" color="gray" style={styles.loadingIndicator} />}
+            {loading && <ActivityIndicator size="small" color="gray"/>}
         </View>
     );
 };

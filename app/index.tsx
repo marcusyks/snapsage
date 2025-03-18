@@ -29,8 +29,8 @@ export default function App() {
           size={200}
           width={30}
           fill={progress}
-          tintColor={Colors[colorScheme ?? 'light'].tint}
-          backgroundColor="white"
+          backgroundColor={Colors[colorScheme ?? 'light'].tint}
+          tintColor={Colors[colorScheme ?? 'light'].background}
           rotation={0}
         />
         <Text style={styles.circularProgressText}>{progress.toFixed(0)}%</Text>
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     height: '100%',
     display: 'flex',
     justifyContent: 'center',
+    backgroundColor: "white",
     alignItems: 'center',
   },
   progressText: {

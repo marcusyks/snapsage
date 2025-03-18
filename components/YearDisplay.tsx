@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Text, View } from './Themed';
@@ -21,7 +21,7 @@ interface YearDisplayProps {
 const { width } = Dimensions.get('window'); // Get screen width for layout
 
 // Memoized component for rendering images
-const RenderImages = memo(({ item }: { item: YearList }) => {
+const RenderImages = (({ item }: { item: YearList }) => {
   const imagesToDisplay = item.assets.slice(0, numberToPreview); // Get the first 4 images
 
   return (
@@ -63,7 +63,7 @@ export const YearDisplay: React.FC<YearDisplayProps> = ({ assets = [] }) => {
   }, [assets]);
 
   // Memoize the renderImages to prevent unnecessary re-renders
-  const renderItem = ({ item }: { item: YearList }) => <RenderImages item={item} />;
+  const renderItem = useCallback(({ item }: { item: YearList }) => <RenderImages item={item} />, []);
 
   return (
     <View style={styles.container}>

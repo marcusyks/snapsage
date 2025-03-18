@@ -64,6 +64,7 @@ const imageExtraction = async (assets: Asset[]): Promise<any> => {
             return [null, null];
         }
 
+
         return data.map(item => ({
             keywords: item.keywords,
             embeddings: item.embeddings

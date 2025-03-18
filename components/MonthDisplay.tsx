@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Text, View } from './Themed';
@@ -11,8 +11,7 @@ const imageDimensionAdjust = marginBetweenImages * 4;
 
 const { width } = Dimensions.get('window'); // Get screen width for layout
 
-// Memoized component for rendering images
-const RenderImages = memo(({ item }: { item: MonthList }) => {
+const RenderImages = (({ item }: { item: MonthList }) => {
   const imagesToDisplay = item.assets.slice(0, numberToPreview); // Get the first 4 images
 
   return (
@@ -56,7 +55,7 @@ export const MonthDisplay: React.FC<MonthDisplayProps> = ({ assets = [] }) => {
   }, [assets]);
 
   // Memoize the renderImages to prevent unnecessary re-renders
-  const renderItem = ({ item }: { item: MonthList }) => <RenderImages item={item} />;
+  const renderItem = useCallback(({ item }: { item: MonthList }) => <RenderImages item={item}/>, []);
 
   return (
     <View style={styles.container}>

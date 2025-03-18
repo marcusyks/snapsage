@@ -1,6 +1,4 @@
-import * as SQLite from 'expo-sqlite';
 import { OpenDatabase } from './databaseManager';
-
 
 export const loadAssetsByKeyword = async (searchKeyword: string) => {
     const db = await OpenDatabase();
