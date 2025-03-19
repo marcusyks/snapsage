@@ -50,14 +50,15 @@ export const InsertAsset = async (asset: Asset, keywords: string[], embeddings: 
 export const CleanUpDeletedAssets = async (currentAssets: Asset[], db: SQLite.SQLiteDatabase) => {
     try {
         const currentFilePaths = currentAssets.map((asset) => asset.uri);
-        const dbResults = await db.getAllAsync(`SELECT filepath FROM images`);
-        const dbFilePaths = dbResults.map((row: any) => row.filepath);
+        const dbResults : Row[] = await db.getAllAsync(`SELECT filepath FROM images`);
+        const dbFP : string[] = dbResults.map(row => row.filepath);
 
         // Find and delete assets that are in the database but not in current assets
-        const toDelete = dbFilePaths.filter((path) => !currentFilePaths.includes(path));
+        const toDelete = dbFP.filter((path) => !currentFilePaths.includes(path));
         for (const path of toDelete) {
-        await deleteAsset(path, db);
-    }
+            console.log("Deleting asset: ", path);
+            await deleteAsset(path, db);
+        }
         await AsyncStorage.setItem(ASSETS_CACHE_KEY, JSON.stringify(currentAssets));
     } catch (error) {
         console.log("Failed to clean up deleted assets!", error);
