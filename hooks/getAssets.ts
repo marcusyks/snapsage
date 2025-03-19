@@ -4,6 +4,11 @@ import { getAllMonths, getAllYears } from '@/functions/imageFilters';
 
 const ASSETS_CACHE_KEY = process.env.EXPO_PUBLIC_ASSETS_CACHE_KEY as string;
 
+/**
+ * React Hook to get all assets from the cache for display
+ * @param type - Type of content to display (month or year)
+ * @returns {assets, monthAssets, yearAssets, loading, error} - Returns all assets, assets grouped by month, assets grouped by year, loading state, and error state
+ */
 export const getAssets = (type: TypeOfContent) => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [monthAssets, setMonthAssets] = useState<MonthList[]>([]);

@@ -1,9 +1,11 @@
 import { StyleSheet } from 'react-native';
-
 import ImagesScreen from '@/components/ImagesScreen';
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
 
-
+/**
+ * React Component that displays all images on device
+ * @returns AllScreen
+ */
 export default function AllScreen() {
   const content: TypeOfContent = 'all';
 
@@ -14,6 +16,9 @@ export default function AllScreen() {
   );
 }
 
+/**
+ * Styles for AllScreen
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

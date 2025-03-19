@@ -1,7 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { View } from '@/components/Themed';
 import ImagesScreen from '@/components/ImagesScreen';
 
+/**
+ * React Component that displays all images, categorized by year
+ * @returns YearScreen
+ */
 export default function YearScreen() {
   const content: TypeOfContent = 'year';
 
@@ -12,6 +16,9 @@ export default function YearScreen() {
   );
 }
 
+/**
+ * Styles for YearScreen
+ */
 const styles = StyleSheet.create({
   container: {
     flex: 1,

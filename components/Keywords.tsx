@@ -1,6 +1,12 @@
 import Colors from '@/constants/Colors';
 import { Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 
+
+/**
+ * React Component that displays all keywords for a given image
+ * @param props Title of the keyword list and the list of keywords
+ * @returns Keywords
+ */
 export default function Keywords(props: KeywordList) {
   const { title, keywords } = props;
 
@@ -35,6 +41,9 @@ export default function Keywords(props: KeywordList) {
   );
 }
 
+/**
+ *  Styles for Keywords
+ */
 const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors['dark'].tint,

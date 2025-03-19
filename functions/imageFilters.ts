@@ -1,5 +1,14 @@
 import { Asset } from "expo-media-library";
 
+/**
+ * Functions to perform time conversions
+*/
+
+/**
+ * Create a MonthList object based on given UNIX timestamp
+ * @param time UNIX timestamp in milliseconds
+ * @returns MonthList that represents UNIX timestamp in month and year, containing an array of related images
+ */
 const convertTimeToMonthYear = (time: number) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const date = new Date(time);
@@ -12,6 +21,11 @@ const convertTimeToMonthYear = (time: number) => {
     return monthList;
 }
 
+/**
+ * Create a YearList object based on given UNIX timestamp
+ * @param time UNIX timestamp in milliseconds
+ * @returns YearList that represents UNIX timestamp in year, containing an array of related images
+ */
 const convertTimeToYear = (time: number) => {
     const date = new Date(time);
 
@@ -22,6 +36,11 @@ const convertTimeToYear = (time: number) => {
     return yearList;
 }
 
+/**
+ * Groups all images into their respective months and years
+ * @param assets - Array of images
+ * @returns Array of MonthList object that contains all images grouped by month and year
+ */
 export const getAllMonths = ({ assets }: { assets: Asset[] }) => {
     let months: MonthList[] = [];
 
@@ -43,6 +62,11 @@ export const getAllMonths = ({ assets }: { assets: Asset[] }) => {
     return months;
 };
 
+/**
+ * Groups all images into their respective years
+ * @param assets - Array of images
+ * @returns Array of YearList object that contains all images grouped by year
+ */
 export const getAllYears = ({assets} : {assets: Asset[]}) => {
     let years: YearList[] = [];
 

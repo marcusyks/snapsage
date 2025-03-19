@@ -12,6 +12,11 @@ import { useState } from 'react';
 const spaceFromSides = 10;
 const titlePadding = spaceFromSides/1.5;
 
+
+/**
+ * React Component that displays a screen with a gallery of images from a specified year
+ * @returns YearModal
+ */
 export default function YearModal() {
   const { year, assets } = useLocalSearchParams<{ year: string, assets: string }>(); // Get route parameters
   const parsedAssets = JSON.parse(assets as string); // Convert assets from string back to object
@@ -39,6 +44,9 @@ export default function YearModal() {
   );
 }
 
+/**
+ * Styles for YearModal
+ */
 const styles = StyleSheet.create({
     container:{
       flex: 1,

@@ -1,11 +1,10 @@
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
@@ -13,6 +12,10 @@ function TabBarIcon(props: {
   return <FontAwesome size={22} style={{ marginBottom: 2 }} {...props} />;
 }
 
+/**
+ * React Component that displays the layout for the home screen
+ * @returns HomeLayout
+ */
 export default function HomeLayout() {
   const colorScheme = useColorScheme();
 
@@ -21,8 +24,6 @@ export default function HomeLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].text,
         tabBarStyle: {backgroundColor: Colors[colorScheme ?? 'light'].background},
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
       }}>
       <Tabs.Screen

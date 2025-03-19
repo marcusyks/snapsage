@@ -3,6 +3,18 @@ import { Asset } from 'expo-media-library';
 import * as SQLite from 'expo-sqlite';
 import { CheckInDatabase, InsertAsset } from './databaseManager';
 
+/**
+ * Manages all image related operations
+*/
+
+const SERVER_IP = process.env.EXPO_PUBLIC_SERVER_IP as string;
+
+
+/**
+ * Creates an image blob
+ * @param uri - Unique URI of an image
+ * @returns Blob object of the image
+ */
 const createBlobFromUri = async (uri: string): Promise<Blob | null> => {
     try {
         const response = await fetch(uri);
@@ -18,9 +30,12 @@ const createBlobFromUri = async (uri: string): Promise<Blob | null> => {
     }
 };
 
+/**
+ * Performs API call to the server to extract features from images
+ * @param assets - Array of 16 images to be processed
+ * @returns Array of extracted data (embeddings and keywords) for each image
+ */
 const imageExtraction = async (assets: Asset[]): Promise<any> => {
-    const SERVER_IP = process.env.EXPO_PUBLIC_SERVER_IP as string;
-
     try {
         const blobs = await Promise.all(assets.map(async (asset) => {
             const assetInfo = await MediaLibrary.getAssetInfoAsync(asset);
@@ -76,6 +91,11 @@ const imageExtraction = async (assets: Asset[]): Promise<any> => {
     }
 };
 
+/**
+ * Splits a block of images (160) into smaller chunks (16), processes them and inserts into the database
+ * @param assets - Array of images to be processed
+ * @param db - Database object
+ */
 export const ProcessImages = async (assets: Asset[], db: SQLite.SQLiteDatabase) => {
     // Helper function to split array into chunks
     const chunkArray = (array: Asset[], size: number) => {

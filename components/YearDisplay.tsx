@@ -5,22 +5,16 @@ import { Text, View } from './Themed';
 import { Link } from 'expo-router';
 import Colors from '@/constants/Colors';
 
-const numberToPreview = 4;
+const numberToPreview = 8;
 const marginBetweenImages = 4;
 const imageDimensionAdjust = marginBetweenImages * 4;
+const { width } = Dimensions.get('window');
 
-interface Asset {
-  id: string;
-  uri: string;
-}
-
-interface YearDisplayProps {
-  assets: YearList[] | undefined;
-}
-
-const { width } = Dimensions.get('window'); // Get screen width for layout
-
-// Memoized component for rendering images
+/**
+ * Renders YearList object and creates container display for it
+ * @param item - YearList object containing the year and related images
+ * @returns Containers for each year with 8 preview images
+ */
 const RenderImages = (({ item }: { item: YearList }) => {
   const imagesToDisplay = item.assets.slice(0, numberToPreview); // Get the first 4 images
 
@@ -53,6 +47,11 @@ const RenderImages = (({ item }: { item: YearList }) => {
   );
 });
 
+/**
+ * React Component that displays a list of year containers with preview images
+ * @param assets - Array of images to display
+ * @returns YearDisplay
+ */
 export const YearDisplay: React.FC<YearDisplayProps> = ({ assets = [] }) => {
   const [currentYearAssets, setCurrentYearAssets] = useState<YearList[]>([]);
 
@@ -62,23 +61,25 @@ export const YearDisplay: React.FC<YearDisplayProps> = ({ assets = [] }) => {
     }
   }, [assets]);
 
-  // Memoize the renderImages to prevent unnecessary re-renders
   const renderItem = useCallback(({ item }: { item: YearList }) => <RenderImages item={item} />, []);
 
   return (
     <View style={styles.container}>
       <FlatList
         data={currentYearAssets}
-        renderItem={renderItem} // Use memoized renderItem function
-        keyExtractor={(item) => `${item.year}`} // Unique key for each year
+        renderItem={renderItem}
+        keyExtractor={(item) => `${item.year}`}
         showsVerticalScrollIndicator={false}
-        initialNumToRender={10} // Render a limited number of items initially for better performance
+        initialNumToRender={10}
         contentContainerStyle={styles.listContainer}
       />
     </View>
   );
 };
 
+/**
+ * Styles for YearDisplay
+ */
 const styles = StyleSheet.create({
   container: {
     height: '100%',

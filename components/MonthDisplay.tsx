@@ -8,9 +8,13 @@ import Colors from '@/constants/Colors'
 const numberToPreview = 8;
 const marginBetweenImages = 6;
 const imageDimensionAdjust = marginBetweenImages * 4;
+const { width } = Dimensions.get('window');
 
-const { width } = Dimensions.get('window'); // Get screen width for layout
-
+/**
+ * Renders MonthList object and creates container display for it
+ * @param item - MonthList object containing the year, month, and related images
+ * @returns Containers for each month and year with 8 preview images
+ */
 const RenderImages = (({ item }: { item: MonthList }) => {
   const imagesToDisplay = item.assets.slice(0, numberToPreview); // Get the first 4 images
 
@@ -45,6 +49,11 @@ const RenderImages = (({ item }: { item: MonthList }) => {
   );
 });
 
+/**
+ * Displays a list of month and year containers with preview images
+ * @param assets - Array of images to display
+ * @returns MonthDisplay
+ */
 export const MonthDisplay: React.FC<MonthDisplayProps> = ({ assets = [] }) => {
   const [currentMonthAssets, setCurrentMonthAssets] = useState<MonthList[]>([]);
 
@@ -54,15 +63,14 @@ export const MonthDisplay: React.FC<MonthDisplayProps> = ({ assets = [] }) => {
     }
   }, [assets]);
 
-  // Memoize the renderImages to prevent unnecessary re-renders
   const renderItem = useCallback(({ item }: { item: MonthList }) => <RenderImages item={item}/>, []);
 
   return (
     <View style={styles.container}>
         <FlatList
           data={currentMonthAssets}
-          renderItem={renderItem} // Use memoized renderItem function
-          keyExtractor={(item) => `${item.year} ${item.month}`} // Unique key for each month
+          renderItem={renderItem}
+          keyExtractor={(item) => `${item.year} ${item.month}`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContainer}
         />
@@ -70,6 +78,9 @@ export const MonthDisplay: React.FC<MonthDisplayProps> = ({ assets = [] }) => {
   );
 };
 
+/**
+ * Styles for MonthDisplay
+ */
 const styles = StyleSheet.create({
   container: {
     height: '100%',

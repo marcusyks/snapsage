@@ -1,5 +1,14 @@
 import { OpenDatabase } from './databaseManager';
 
+/**
+ * Manages all keyword related operations
+*/
+
+/**
+ * Fetches all related assets based on a keyword
+ * @param searchKeyword - input keyword from search bar
+ * @returns array of images that are related to keyword
+ */
 export const loadAssetsByKeyword = async (searchKeyword: string) => {
     const db = await OpenDatabase();
 
@@ -18,7 +27,11 @@ export const loadAssetsByKeyword = async (searchKeyword: string) => {
     }
 };
 
-// Load keywords for a specific asset
+/**
+ * Fetches all keywords related to an image
+ * @param filepath Unique URI of an image
+ * @returns array of keywords that are related to the image
+ */
 export const loadKeywordsByAsset = async (filepath: string) => {
     const db = await OpenDatabase();
 

@@ -12,6 +12,11 @@ import { useState } from 'react';
 const spaceFromSides = 10;
 const titlePadding = spaceFromSides/1.5;
 
+
+/**
+ * React Component that displays a screen with a gallery of images from a specified month
+ * @returns MonthModal
+ */
 export default function MonthModal() {
   const { yearMonth, assets } = useLocalSearchParams<{ yearMonth: string, assets: string }>(); // Get route parameters
   const parsedAssets = JSON.parse(assets as string); // Convert assets from string back to object
@@ -41,6 +46,9 @@ export default function MonthModal() {
   );
 }
 
+/**
+ * Styles for MonthModal
+ */
 const styles = StyleSheet.create({
     container:{
       flex: 1,

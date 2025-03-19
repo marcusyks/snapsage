@@ -6,8 +6,14 @@ import { Link } from 'expo-router';
 const numberToRender = 50;
 const marginBetweenImages = 4;
 const imageDimensionAdjust = marginBetweenImages * 4;
-const { width } = Dimensions.get('window'); // Get screen width for layout
+const { width } = Dimensions.get('window');
 
+
+/**
+ * React Component that displays a gallery of images
+ * @param assets - Array of images to display
+ * @returns GalleryDisplay
+ */
 export const GalleryDisplay: React.FC<GalleryDisplayProps> = ({ assets = [], onImagePress }) => {
   const [currentAssets, setCurrentAssets] = useState<Asset[]>([]);
 
@@ -68,6 +74,9 @@ export const GalleryDisplay: React.FC<GalleryDisplayProps> = ({ assets = [], onI
   );
 };
 
+/**
+ * Styles for GalleryDisplay
+ */
 const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,

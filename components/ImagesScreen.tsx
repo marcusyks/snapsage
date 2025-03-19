@@ -11,6 +11,12 @@ import { CustomSearchBar } from './SearchBar';
 const spaceFromSides = 10;
 const titlePadding = spaceFromSides/1.5;
 
+/**
+ * React Component that displays a screen with a gallery of images for the three main types of content (all images, month, year)
+ * @param name - Title of the screen
+ * @param type - Type of content to display (all, month, year)
+ * @returns ImagesScreen
+ */
 export default function ImagesScreen({ name, type }: { name: string, type: TypeOfContent }) {
   const [searchedAssets, setSearchedAssets] = useState<Asset[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -49,6 +55,9 @@ export default function ImagesScreen({ name, type }: { name: string, type: TypeO
   );
 }
 
+/**
+ * Styles for ImagesScreen
+ */
 const styles = StyleSheet.create({
   container:{
     flex: 1,

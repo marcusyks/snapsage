@@ -7,6 +7,11 @@ import { CleanUpDeletedAssets, InitializeDatabase, OpenDatabase } from '@/contro
 import { ProcessImages } from '@/controllers/imageManager';
 import { CreateEmbeddingIndexTable } from '@/controllers/embeddingManager';
 
+/**
+ * React Hook that initializes the database and updates the progress
+ * @returns {progress, isComplete, isLoading} - Returns progress, completion status, loading status
+ */
+
 export const initializeAndUpdate = () => {
   const [progress, setProgress] = useState<number>(0);
   const [assets, setAssets] = useState<Asset[]>([]);

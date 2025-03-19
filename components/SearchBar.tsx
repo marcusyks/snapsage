@@ -4,8 +4,12 @@ import { useEffect, useState, useMemo } from "react";
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { loadAssetsByKeyword } from '@/controllers/keywordManager';
 
-const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
-
+/**
+ * React Component that represents a search bar
+ * @param assets - Array of images to search through
+ * @param onSearchResultsChange - Function to call when search results change to update parent component
+ * @returns CustomSearchBar
+ */
 export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchResultsChange }) => {
     const [searchKeyword, setSearchKeyword] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -20,22 +24,22 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
                     onSearchResultsChange(filteredAssets, searchKeyword);
                 } catch (error) {
                     console.error("Error fetching assets:", error);
-                    onSearchResultsChange([], searchKeyword); // Handle error gracefully
+                    onSearchResultsChange([], searchKeyword);
                 } finally {
                     setLoading(false);
                 }
             } else {
-                onSearchResultsChange([], searchKeyword); // Clear when there's no search keyword
+                onSearchResultsChange([], searchKeyword);
             }
         };
 
         // Debounce search input
         const handler = setTimeout(() => {
             fetchAssets();
-        }, 300); // Adjust the debounce time as necessary
+        }, 300);
 
         return () => {
-            clearTimeout(handler); // Clear timeout on unmount or input change
+            clearTimeout(handler);
         };
     }, [searchKeyword]);
 
@@ -57,15 +61,18 @@ export const CustomSearchBar: React.FC<CustomSearchProps> = ({ assets, onSearchR
     );
 };
 
+/**
+ * Styles for CustomSearchBar
+ */
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 10, // Give some vertical spacing to prevent shaking
+        marginVertical: 10,
     },
     searchBarContainer: {
         backgroundColor: 'transparent',
-        height: 50, // Set a fixed height for the search bar container
+        height: 50,
     },
     inputContainer: {
-        height: 50, // Set a fixed height for the input container
+        height: 50,
     },
 });

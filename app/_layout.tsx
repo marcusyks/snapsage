@@ -42,7 +42,10 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
-
+/**
+ * Navigation stack for the application
+ * @returns {RootLayoutNav} - Returns the navigation stack for the application
+ */
 function RootLayoutNav() {
   return (
     <ThemeProvider value={DarkTheme}>

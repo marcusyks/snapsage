@@ -1,26 +1,44 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SQLite from 'expo-sqlite';
 
+/**
+ * Manages all database related operations
+ */
+
 const ASSETS_CACHE_KEY = process.env.EXPO_PUBLIC_ASSETS_CACHE_KEY as string;
 const DB_KEY = process.env.EXPO_PUBLIC_DB_KEY as string;
 
+/**
+ * Opens the database and returns the database object
+ * @returns {Promise<Asset[]>} - Returns database object
+ */
 export const OpenDatabase = async() =>{
     const db = await SQLite.openDatabaseAsync(DB_KEY);
     return db;
 }
 
+/**
+ * Initializes database by creating images table (if not exists)
+ * @param db - Database object
+ * @returns {Promise<Asset[]>} - Creates images table in the database (if not exists)
+ */
 export const InitializeDatabase = async (db: SQLite.SQLiteDatabase) => {
     try {
       await db.execAsync(`
         PRAGMA journal_mode = WAL;
         CREATE TABLE IF NOT EXISTS images (filepath TEXT PRIMARY KEY NOT NULL, keywords TEXT, embeddings TEXT);
       `);
-      // await db.execAsync(`DROP TABLE images`)
     } catch {
       console.log("Failed to load database!");
     }
 };
 
+/**
+ * Checks if an image is in the database
+ * @param asset Image entity
+ * @param db Database object
+ * @returns boolean - Returns true if the image is in the database, false otherwise
+ */
 export const CheckInDatabase = async (asset: Asset, db: SQLite.SQLiteDatabase) => {
     // Try fetching asset
     try {
@@ -34,7 +52,13 @@ export const CheckInDatabase = async (asset: Asset, db: SQLite.SQLiteDatabase) =
     }
 }
 
-
+/**
+ * Inserts an tuple into the "images" table
+ * @param asset Image Entity
+ * @param keywords Array of keywords related to image
+ * @param embeddings 512-D vector representing the image
+ * @param db Database Object
+ */
 export const InsertAsset = async (asset: Asset, keywords: string[], embeddings: number[], db: SQLite.SQLiteDatabase) => {
     const { uri: fileUri } = asset;
     try {
@@ -47,6 +71,11 @@ export const InsertAsset = async (asset: Asset, keywords: string[], embeddings: 
     }
 };
 
+/**
+ * Cleans up deleted images from the "images" table by comparing the processed images with the images in the table
+ * @param currentAssets - Image entities processed by the application
+ * @param db - Database Object
+ */
 export const CleanUpDeletedAssets = async (currentAssets: Asset[], db: SQLite.SQLiteDatabase) => {
     try {
         const currentFilePaths = currentAssets.map((asset) => asset.uri);
@@ -65,6 +94,11 @@ export const CleanUpDeletedAssets = async (currentAssets: Asset[], db: SQLite.SQ
     }
 };
 
+/**
+ * Deletes an image from the "images" table
+ * @param filepath Unique URI of an image
+ * @param db Database Object
+ */
 const deleteAsset = async (filepath: string, db: SQLite.SQLiteDatabase) => {
     try {
         await db.runAsync(`DELETE FROM images WHERE filepath = ?`, [filepath]);

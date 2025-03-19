@@ -1,3 +1,7 @@
+/**
+ * Contains all Typescript interfaces used in the application
+ */
+
 declare interface Asset {
     id: string;
     uri: string;
@@ -36,6 +40,10 @@ declare interface MonthList {
 declare interface YearList {
     year: number,
     assets: Asset[];
+}
+
+interface YearDisplayProps {
+    assets: YearList[] | undefined;
 }
 
 declare interface getAssetsProps {

@@ -14,10 +14,14 @@ const { width, height } = Dimensions.get('window');
 const spaceFromSides = 10;
 const estimatedNavBarHeight = 240;
 
+/**
+ * React Component that displays different sections regarding an image (Image Display, Keywords, Similar Images)
+ * @returns ImageModal
+ */
 export default function ImageModal() {
-  const { asset } = useLocalSearchParams<{ asset: string }>(); // Get route parameters
-  const parsedAsset = JSON.parse(asset as string); // Convert assets from string back to object
-  const { similarAssets, loading, error, refetch } = GetSimilarAssets(parsedAsset.uri);
+  const { asset } = useLocalSearchParams<{ asset: string }>();
+  const parsedAsset = JSON.parse(asset as string);
+  const { similarAssets, loading, error} = GetSimilarAssets(parsedAsset.uri);
   const flatListRef = useRef<FlatList>(null); // Ref for FlatList
   const [keywords, setKeywords] = useState<string[]>([]);
 
@@ -26,7 +30,6 @@ export default function ImageModal() {
       const keywordsList : string[] = await loadKeywordsByAsset(parsedAsset.uri);
       setKeywords(keywordsList);
     }
-    refetch();
     fetchKeywords();
   }, [parsedAsset.uri]);
 
@@ -87,19 +90,17 @@ export default function ImageModal() {
   };
 
   const data = [
-    { type: 'image' }, // For the Image and Keywords section
+    { type: 'image' },
     { type: 'keywords'},
-    { type: 'similarImages' }, // For the Similar Images section
+    { type: 'similarImages' },
   ];
 
   return (
     <View style={styles.container}>
-      {/* Navbar Fixed at the Top */}
       <CustomNavBar />
 
-      {/* FlatList for snap scrolling */}
       <FlatList
-        ref={flatListRef} // Attach ref to FlatList
+        ref={flatListRef}
         data={data}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
@@ -112,6 +113,9 @@ export default function ImageModal() {
   );
 }
 
+/**
+ * Styles for ImageModal
+ */
 const styles = StyleSheet.create({
   filename: {
     fontSize: 32,

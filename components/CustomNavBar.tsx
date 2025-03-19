@@ -3,6 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 
+
+/**
+ * React Component that represents the navigation bar of the application
+ * @returns Custom Navigation Bar
+ */
 export const CustomNavBar = () => {
   const router = useRouter();
 
@@ -21,6 +26,9 @@ export const CustomNavBar = () => {
   );
 };
 
+/**
+ * Styles for CustomNavBar
+ */
 const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',

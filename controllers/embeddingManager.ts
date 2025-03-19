@@ -1,7 +1,14 @@
 import { OpenDatabase } from '@/controllers/databaseManager';
 import * as SQLite from 'expo-sqlite';
 
-// Create the Embedding Index Table with SQLite Index
+/**
+ * Manages all embedding related operations
+ */
+
+/**
+ * Creates LSH implementation and indexing component
+ * @param db - Database object
+ */
 export const CreateEmbeddingIndexTable = async (db: SQLite.SQLiteDatabase) => {
     console.log('Creating embedding index table');
     try{
@@ -20,7 +27,12 @@ export const CreateEmbeddingIndexTable = async (db: SQLite.SQLiteDatabase) => {
     }
 };
 
-// Find Similar Assets Using SQLite Index
+/**
+ * Get similar assets based on the queried image
+ * @param filepathA - Unique URI of a queried image
+ * @param assets - all images in Database
+ * @returns - Returns an array of similar images
+ */
 export const FindSimilarAssets = async (filepathA: string, assets: Asset[]) => {
     const db = await OpenDatabase();
 
@@ -50,6 +62,10 @@ export const FindSimilarAssets = async (filepathA: string, assets: Asset[]) => {
     return candidateFP.map(uri => assets.find(asset => asset.uri === uri) as Asset);
 };
 
+/**
+ * Performs tuple insertion to "embedding_index" table
+ * @param db - Database object
+ */
 const loadIndex = async (db: SQLite.SQLiteDatabase) => {
     const rows : Row[] = await db.getAllAsync('SELECT * FROM images');
     for (const row of rows) {
@@ -64,10 +80,19 @@ const loadIndex = async (db: SQLite.SQLiteDatabase) => {
     }
 };
 
+/**
+ * Deletes tuple from "embedding_index" table
+ * @param filepath - Unique URI of the image to be deleted
+ * @param db - Database object
+ */
 const deleteIndexRow = async(filepath: string, db: SQLite.SQLiteDatabase) => {
     await db.runAsync('DELETE FROM embedding_index WHERE filepath = ?', [filepath]);
 }
 
+/**
+ * Cleans up the "embedding_index" table by comparing the images in the "images" table with the images in the "embedding_index" table
+ * @param db - Database object
+ */
 const cleanUpIndex = async(db: SQLite.SQLiteDatabase) => {
     const currentResults : Row[] = await db.getAllAsync('SELECT filepath FROM images');
     const currentFP : string[] = currentResults.map(row => row.filepath);
@@ -82,13 +107,23 @@ const cleanUpIndex = async(db: SQLite.SQLiteDatabase) => {
     }
 }
 
-// Hashing function remains unchanged
+/**
+ * Generates a hash for the embedding
+ * @param embedding - 512-D vector representing the image
+ * @param dbSize - Number of processed images in the "images" table
+ * @returns log10(dbSize) length hash of the embedding
+ */
 const hashEmbedding = (embedding: number[], dbSize : number): string => {
     const numBits : number = Math.log10(dbSize);
     return embedding.slice(0, numBits).map(val => (val > 0 ? '1' : '0')).join('');
 };
 
-// Cosine similarity function remains unchanged
+/**
+ * Calculates the cosine similarity between two vectors
+ * @param a - 512-D vector representing an image
+ * @param b - 512-D vector representing another image
+ * @returns Cosine similarity between the two vectors
+ */
 const cosineSimilarity = (a: number[], b: number[]): number => {
     let dotProduct = 0, sumA = 0, sumB = 0;
     for (let i = 0; i < a.length; i++) {

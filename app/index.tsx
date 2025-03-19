@@ -12,6 +12,11 @@ import Colors from '@/constants/Colors';
 const { height } = Dimensions.get('window'); // Get screen height for layout
 const logoSize = height * 0.3
 
+
+/**
+ * Start up screen for the app
+ * @returns App
+ */
 export default function App() {
   const {progress, isComplete} = initializeAndUpdate();
   const colorScheme = useColorScheme();
@@ -46,6 +51,9 @@ export default function App() {
   );
 }
 
+/**
+ * Styles for App
+ */
 const styles = StyleSheet.create({
   image: {
     height: logoSize,
