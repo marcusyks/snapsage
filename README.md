@@ -26,7 +26,12 @@ NOTE: The AI model is not provided in this repo.
    ```sh
    npm install expo-sqlite
    ```
-4. Test application (access through **Expo-Go** mobile application)
+4. Create .env file and add parameters:
+   - EXPO_PUBLIC_ASSETS_CACHE_KEY
+   - EXPO_PUBLIC_DB_KEY
+   - EXPO_PUBLIC_SERVER_IP
+
+5. Test application (access through **Expo-Go** mobile application)
     ```sh
     npx expo start
     ```
