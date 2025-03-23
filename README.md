@@ -36,9 +36,6 @@ NOTE: The AI model is not provided in this repo.
     npx expo start
     ```
 
-## License
-This project is licensed under the MIT License.
-
 ## Author
 - Marcus – [marcusyks](https://github.com/marcusyks)
 
