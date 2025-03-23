@@ -1,7 +1,7 @@
-# Image Indexing & Search Application
+# SnapSage
 
 ## Overview
-This application provides an efficient way to access, categorize, and search for images using AI.
+SnapSage is an image indexing & search application which provides an efficient way to access, categorize, and search for images using AI. It is used in conjunction with [fyp-models](https://github.com/marcusyks/fyp-models)
 
 ## Features
 - **Access** to all image on device.
