@@ -16,7 +16,7 @@ NOTE: The AI model is not provided in this repo.
 1. Clone the repository:
    ```sh
    git clone git@github.com:marcusyks/snapsage.git
-   cd image-search-app
+   cd snapsage
    ```
 2. Install dependencies:
    ```sh
