@@ -70,7 +70,8 @@ const loadIndex = async (db: SQLite.SQLiteDatabase) => {
     const rows : Row[] = await db.getAllAsync('SELECT * FROM images');
     for (const row of rows) {
         await db.runAsync(
-            `INSERT OR IGNORE INTO embedding_index (filepath, hash, embeddings) VALUES (?, ?, ?)`,
+            `INSERT INTO embedding_index (filepath, hash, embeddings) VALUES (?, ?, ?) ON CONFLICT(filepath) DO
+            UPDATE SET hash = excluded.hash, embeddings = excluded.embeddings`,
             [
                 row.filepath,
                 hashEmbedding(JSON.parse(row.embeddings), rows.length),
